@@ -54,12 +54,12 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
 .b-alias{font-size:9.5px;font-weight:500;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
 
 /* Pillar colors */
-.bubble.iw{background:rgba(0,119,139,.1);color:#004d5a}
-.bubble.iw.active{border-color:#00778b;box-shadow:0 0 0 2.5px rgba(0,119,139,.22)}
-.bubble.iw .b-id{background:rgba(0,119,139,.18)}
-.bubble.ta{background:rgba(18,149,216,.11);color:#0a4f7a}
-.bubble.ta.active{border-color:#1295d8;box-shadow:0 0 0 2.5px rgba(18,149,216,.22)}
-.bubble.ta .b-id{background:rgba(18,149,216,.18)}
+.bubble.iw{background:rgba(4,120,87,.12);color:#065f46}
+.bubble.iw.active{border-color:#047857;box-shadow:0 0 0 2.5px rgba(4,120,87,.24)}
+.bubble.iw .b-id{background:rgba(4,120,87,.2)}
+.bubble.ta{background:rgba(37,99,235,.12);color:#1e40af}
+.bubble.ta.active{border-color:#2563eb;box-shadow:0 0 0 2.5px rgba(37,99,235,.24)}
+.bubble.ta .b-id{background:rgba(37,99,235,.2)}
 .bubble.cd{background:rgba(255,181,17,.15);color:#6b4000}
 .bubble.cd.active{border-color:#ffb511;box-shadow:0 0 0 2.5px rgba(255,181,17,.3)}
 .bubble.cd .b-id{background:rgba(255,181,17,.28)}
@@ -84,7 +84,7 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
 .panel-sec-meta{display:flex;flex-wrap:wrap;gap:5px}
 .sec-badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
 .badge-lead{background:#f0f4f9;color:#3a5270}
-.badge-r{background:#e8f4fd;color:#0a4f7a}
+.badge-r{background:#e8f4fd;color:#1e40af}
 .badge-e{background:#edf5ff;color:#003B5C}
 .panel-item-id{font-size:11px;font-weight:700;color:#7a96ad;margin-bottom:4px}
 .panel-title{font-size:15px;font-weight:700;color:#1a2740;line-height:1.35;margin-bottom:6px}
@@ -118,8 +118,8 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
   <div class="matrix-area">
 
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#00778b"></div>1 Instructional Workforce</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#1295d8"></div>2 TA Allocation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#047857"></div>1 Instructional Workforce</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>2 TA Allocation</div>
       <div class="legend-item"><div class="legend-dot" style="background:#ffb511"></div>3 Course Delivery</div>
     </div>
 
@@ -200,7 +200,7 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
 const pillars = {
   '1': {
     num:'1', pillar:'Instructional Workforce', cls:'iw',
-    dotColor:'#00778b', badgeBg:'rgba(0,119,139,.1)', badgeColor:'#004d5a',
+    dotColor:'#047857', badgeBg:'rgba(4,120,87,.12)', badgeColor:'#065f46',
     sections:[
       {
         id:'1.1', title:'Optimize Use of TA Appointments',
@@ -290,7 +290,7 @@ const pillars = {
   },
   '2': {
     num:'2', pillar:'TA Allocation', cls:'ta',
-    dotColor:'#1295d8', badgeBg:'rgba(18,149,216,.11)', badgeColor:'#0a4f7a',
+    dotColor:'#2563eb', badgeBg:'rgba(37,99,235,.12)', badgeColor:'#1e40af',
     sections:[
       {
         id:'2.1', title:'Optimize TA Use Based on Discipline-Specific Instructional Needs',
@@ -552,7 +552,7 @@ function openItem(pid, si, ii) {
     <div class="panel-meta">
       <div class="panel-meta-item">
         <span class="panel-meta-label">Resource</span>
-        <span class="panel-meta-value" style="color:#1295d8;">${item.resource}</span>
+        <span class="panel-meta-value" style="color:#2563eb;">${item.resource}</span>
       </div>
       <div class="panel-meta-item">
         <span class="panel-meta-label">Effort</span>
