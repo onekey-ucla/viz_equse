@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter','Helvetica Neue',Arial,sans-serif; font-weight:300; background:#f8fafc; color:#003B5C; min-height:100vh; }
+
+  .page-wrap { padding:36px 40px 60px; max-width:1100px; margin:0 auto; transition:padding-right .35s ease; }
+  .page-wrap.panel-open { padding-right:465px; }
+
+  .ucla-bar { height:5px; background:linear-gradient(to right,#003B5C,#2774AE,#FFD100); border-radius:3px; margin-bottom:20px; }
+  h1 { font-size:20px; font-weight:600; color:#003B5C; margin-bottom:4px; }
+  .subtitle { font-size:12px; color:#005587; font-weight:300; margin-bottom:14px; }
+  .legend { display:flex; gap:20px; margin-bottom:18px; align-items:center; flex-wrap:wrap; }
+  .leg { display:flex; align-items:center; gap:6px; font-size:11px; color:#003B5C; }
+  .leg-dot { width:10px; height:10px; border-radius:50%; }
+
+  /* Matrix */
+  .matrix-outer { display:flex; gap:0; align-items:stretch; }
+  .y-axis-label { writing-mode:vertical-rl; transform:rotate(180deg); font-size:11px; font-weight:500; color:#005587; letter-spacing:.3px; white-space:nowrap; }
+  .y-axis-sub { writing-mode:vertical-rl; transform:rotate(180deg); font-size:8.5px; font-weight:400; color:#7a9ab0; letter-spacing:.2px; white-space:nowrap; margin-top:4px; }
+  .matrix-grid { flex:1; }
+  .matrix-row { display:flex; }
+  .quadrant { flex:1; padding:14px 16px; position:relative; min-height:180px; }
+  .q-label { font-size:12px; font-weight:600; letter-spacing:.2px; margin-bottom:2px; }
+  .q-desc { font-size:10px; font-weight:300; opacity:.7; margin-bottom:10px; }
+  .bubbles { display:flex; flex-wrap:wrap; gap:5px; align-content:flex-start; }
+  .q-tl { background:#f0f6fb; border-right:1.5px solid #c8dff0; border-bottom:1.5px solid #c8dff0; }
+  .q-tr { background:#e8f2f9; border-bottom:1.5px solid #c8dff0; }
+  .q-bl { background:#fafcff; border-right:1.5px solid #c8dff0; }
+  .q-br { background:#f5f9ff; }
+  .q-tl .q-label { color:#005587; }
+  .q-tr .q-label { color:#003B5C; }
+  .q-bl .q-label { color:#6a8fa8; }
+  .q-br .q-label { color:#2774AE; }
+  .q-tag { position:absolute; top:10px; right:12px; font-size:9px; font-weight:500; opacity:.32; letter-spacing:.5px; text-transform:uppercase; }
+  .divider-h { height:1.5px; background:#c8dff0; }
+
+  /* Action item bubble */
+  .bubble { display:inline-flex; align-items:center; gap:5px; padding:4px 10px 4px 6px; border-radius:20px; font-size:10px; cursor:pointer; transition:transform .12s, box-shadow .12s; border:1.5px solid transparent; user-select:none; }
+  .bubble:hover { transform:translateY(-1px); box-shadow:0 3px 9px rgba(0,59,92,.14); }
+  .bubble.active { box-shadow:0 0 0 2.5px rgba(39,116,174,.22); }
+  .bubble.iw { background:rgba(29,130,64,.13); color:#0d3d1a; }
+  .bubble.iw.active { border-color:#1d7a3a; box-shadow:0 0 0 2.5px rgba(29,130,64,.24); }
+  .bubble.ta { background:rgba(18,149,216,.12); color:#0a4f7a; }
+  .bubble.ta.active { border-color:#1295d8; box-shadow:0 0 0 2.5px rgba(18,149,216,.22); }
+  .bubble.cd { background:rgba(255,181,17,.18); color:#6b4000; }
+  .bubble.cd.active { border-color:#ffb511; box-shadow:0 0 0 2.5px rgba(255,181,17,.35); }
+  .b-id { font-size:8.5px; font-weight:700; padding:1.5px 5px; border-radius:10px; letter-spacing:.1px; flex-shrink:0; }
+  .bubble.iw .b-id { background:rgba(29,130,64,.2); }
+  .bubble.ta .b-id { background:rgba(18,149,216,.18); }
+  .bubble.cd .b-id { background:rgba(255,181,17,.28); }
+  .b-alias { font-size:10px; font-weight:400; opacity:.85; white-space:nowrap; }
+
+  /* Panel */
+  .panel-overlay { position:fixed; inset:0; background:rgba(0,30,50,.15); backdrop-filter:blur(1.5px); z-index:98; opacity:0; pointer-events:none; transition:opacity .3s; }
+  .panel-overlay.active { opacity:1; pointer-events:all; }
+  .side-panel { position:fixed; top:0; right:0; width:445px; height:100vh; background:#fff; border-left:1px solid #c8dff0; box-shadow:-6px 0 32px rgba(0,59,92,.09); z-index:99; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; overflow:hidden; }
+  .side-panel.open { transform:translateX(0); }
+  .panel-header { padding:18px 22px 14px; border-bottom:1px solid #e8f2f9; flex-shrink:0; }
+  .panel-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:17px; color:#8BB8E8; cursor:pointer; padding:4px 8px; border-radius:6px; transition:color .15s,background .15s; line-height:1; }
+  .panel-close:hover { color:#003B5C; background:#f0f6fb; }
+  .panel-pillar-badge { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:500; padding:2px 9px; border-radius:20px; margin-bottom:5px; }
+  .panel-breadcrumb { font-size:10px; color:#8BB8E8; margin-bottom:6px; font-weight:400; }
+  .panel-item-id { font-size:11px; font-weight:700; color:#2774AE; letter-spacing:.3px; margin-bottom:3px; }
+  .panel-title { font-size:14px; font-weight:600; color:#003B5C; line-height:1.4; margin-bottom:8px; padding-right:28px; }
+  .panel-timeframe { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:#2774AE; margin-bottom:10px; }
+  .panel-timeframe::before { content:'⏱'; opacity:.7; }
+  .panel-content-box { font-size:11.5px; color:#1a3a50; line-height:1.65; font-weight:300; padding:11px 13px; background:#f0f7fc; border-radius:8px; border-left:3px solid #2774AE; }
+  .panel-sec-info { margin-top:12px; padding:10px 13px; background:#f8fbfe; border-radius:8px; border:1px solid #e4eef6; }
+  .panel-sec-label { font-size:9px; font-weight:600; color:#8BB8E8; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+  .panel-sec-title { font-size:11.5px; font-weight:500; color:#003B5C; margin-bottom:4px; }
+  .panel-sec-meta { display:flex; gap:8px; flex-wrap:wrap; }
+  .sec-badge { font-size:8.5px; padding:1px 6px; border-radius:8px; font-weight:500; }
+  .badge-r { background:rgba(39,116,174,.1); color:#2774AE; }
+  .badge-e { background:rgba(0,59,92,.08); color:#003B5C; }
+  .badge-lead { background:#f0f4f8; color:#5a7a90; }
+  .panel-body { padding:14px 22px 24px; overflow-y:auto; flex:1; }
+
+  .footer { margin-top:16px; font-size:10px; color:#aaa; font-weight:300; }
+</style>
+</head>
+<body>
+
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+<div class="side-panel" id="sidePanel">
+  <button class="panel-close" onclick="closePanel()">✕</button>
+  <div class="panel-header" id="panelHeader"></div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<div class="page-wrap" id="pageWrap">
+  <div class="ucla-bar"></div>
+  <h1>Priority Matrix — Implementation Areas</h1>
+  <div class="subtitle">Elevating the Quality &amp; Sustainability of Undergraduate Education · UCLA · March 2026</div>
+
+  <div class="legend">
+    <div class="leg"><span class="leg-dot" style="background:#1d7a3a;"></span>1 Instructional Workforce</div>
+    <div class="leg"><span class="leg-dot" style="background:#1295d8;"></span>2 TA Allocation</div>
+    <div class="leg"><span class="leg-dot" style="background:#ffb511;"></span>3 Course Delivery</div>
+    <div style="margin-left:auto;font-size:10px;color:#888;">Click any action item to read detail · Y: Effort &amp; Timeline · X: Resource Investment</div>
+  </div>
+
+  <div class="matrix-outer">
+    <!-- Y axis -->
+    <div style="display:flex;align-items:center;padding-right:10px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="text-align:center;">
+          <div style="font-size:9px;color:#003B5C;font-weight:700;white-space:nowrap;">Higher /</div>
+          <div style="font-size:9px;color:#003B5C;font-weight:700;white-space:nowrap;">Longer-term</div>
+          <div style="font-size:7.5px;color:#5a8aaa;white-space:nowrap;line-height:1.5;">(12–24+ mo)</div>
+        </div>
+        <div style="width:1px;height:80px;background:linear-gradient(to bottom,#2774AE,transparent);"></div>
+        <div class="y-axis-label">Effort &amp; Timeline</div>
+        <div style="width:1px;height:80px;background:linear-gradient(to top,#2774AE,transparent);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:7.5px;color:#5a8aaa;white-space:nowrap;">(0–12 mo)</div>
+          <div style="font-size:9px;color:#8BB8E8;font-weight:600;white-space:nowrap;">Lower /</div>
+          <div style="font-size:9px;color:#8BB8E8;font-weight:600;white-space:nowrap;">Near-term</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="matrix-grid">
+      <div class="matrix-row">
+        <!-- Top-Left: Structural Reform (sustained, low-medium resource) -->
+        <div class="quadrant q-tl">
+          <div class="q-tag">Structural Reform</div>
+          <div class="q-label">Structural Reform</div>
+          <div class="q-desc">Plan &amp; Build · High effort, lower resource — policy &amp; process-led</div>
+          <div class="bubbles" id="q-tl"></div>
+        </div>
+        <div style="width:1.5px;background:#c8dff0;"></div>
+        <!-- Top-Right: Targeted Investment (sustained, high resource) -->
+        <div class="quadrant q-tr">
+          <div class="q-tag">Targeted Investment</div>
+          <div class="q-label">Targeted Investment</div>
+          <div class="q-desc">High effort, high resource — major sustained commitments</div>
+          <div class="bubbles" id="q-tr"></div>
+        </div>
+      </div>
+
+      <div class="divider-h"></div>
+
+      <div class="matrix-row">
+        <!-- Bottom-Left: Foundation Steps (front-loaded, low resource) -->
+        <div class="quadrant q-bl">
+          <div class="q-tag">Foundation Steps</div>
+          <div class="q-label">Foundation Steps</div>
+          <div class="q-desc">Quick Wins · Lower effort, lower resource — launch now</div>
+          <div class="bubbles" id="q-bl"></div>
+        </div>
+        <div style="width:1.5px;background:#c8dff0;"></div>
+        <!-- Bottom-Right: Act & Invest Now (front-loaded, high resource) -->
+        <div class="quadrant q-br">
+          <div class="q-tag">Act &amp; Invest Now</div>
+          <div class="q-label">Act &amp; Invest Now</div>
+          <div class="q-desc">Focused spend, early returns — act now</div>
+          <div class="bubbles" id="q-br"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- X axis -->
+  <div style="display:flex;align-items:center;gap:8px;padding-left:58px;margin-top:10px;">
+    <div style="font-size:9px;color:#8BB8E8;font-weight:600;white-space:nowrap;">Existing /<br>Lower</div>
+    <div style="flex:1;height:1px;background:linear-gradient(to right,#8BB8E8,#2774AE);min-width:60px;"></div>
+    <div style="font-size:11px;font-weight:500;color:#005587;">Resource Investment</div>
+    <div style="flex:1;height:1px;background:linear-gradient(to right,#2774AE,#003B5C);min-width:60px;"></div>
+    <div style="font-size:9px;color:#003B5C;font-weight:700;white-space:nowrap;">New /<br>Higher</div>
+  </div>
+
+  <div class="footer">
+    Y-axis: combined effort &amp; timeline — Higher/Longer-term = high effort (12–24+ mo); Lower/Near-term = lower effort (0–12 mo). X-axis: resource investment — Existing/Lower to New/Higher.<br>
+    Action item numbers correspond to the Working Group White Paper, March 2026.
+  </div>
+</div>
+
+<script>
+const pillars = {
+  '1': {
+    num:'1', pillar:'Instructional Workforce', cls:'iw',
+    dotColor:'#1d7a3a', badgeBg:'rgba(29,130,64,.11)', badgeColor:'#0d3d1a',
+    sections:[
+      { id:'1.1', title:'Optimize the Use of Teaching Assistant Appointments', lead:'Departments', resource:'Low', effort:'High',
+        items:[
+          { id:'1.1.1', alias:'Review TA Use', resource:'Low', effort:'Low\u2013Med', title:'Review Current TA Use Considering Pedagogical Needs', timeframe:'0\u201312 months', content:'Departments should inventory their courses that currently use TAs to support instruction and identify the instructional role that TAs play. Particular attention should be given to whether student attendance in TA-led sections is required or optional and whether TAs are providing structured application of course material, formative feedback, laboratory or studio supervision, writing support, or other clearly defined evidence-based pedagogical purposes. Priority should be given to identifying courses where TA support is essential because of safety considerations, the need for intensive feedback, or student-centered pedagogical practices that depend on active engagement. Departments should also identify courses where the current use of TAs may warrant reconsideration — particularly where attendance in discussion sections is optional and TAs primarily repeat lecture content rather than advancing the learning goals of the primary course section.' },
+          { id:'1.1.2', alias:'Assess TA Reductions', resource:'Low', effort:'High', title:'Assess Courses Where TA Support Is Reduced or Reallocated', timeframe:'12\u201324 months', content:'Departments should evaluate whether a course can responsibly operate with fewer TAs or a different allocation of TA (or other) support. Assessment of student learning outcomes should remain consistent (or improve) under the revised instructional model. This assessment may include customized questions on end-of-quarter student experiences of teaching (SET) surveys, performance-based metrics such as grades or high-stakes assessments, and other direct evidence of learning. Departments should document the rationale for the change, the revised instructional model, and the evidence used to assess its effects on student learning. Departments may consider collaborating with teaching support units such as TLC or CEILS to ensure that assessments are reasonably consistent and evaluated against appropriate benchmarks.' },
+          { id:'1.1.3', alias:'Refine TA Deployment', resource:'Low', effort:'High', title:'Use Assessment and Existing Data to Refine TA Deployment Over Time', timeframe:'24+ months', content:'Departments should engage their deans in reviewing the results of course-level assessments over time to determine whether TA support is being concentrated in the courses where it contributes most directly to instructional demand and quality. APB data and ASE commitment data may also be used to support a more transparent long-term review of TA deployment patterns, particularly in relation to enrollment growth, departmental practice, and the sustainability of current staffing models.' }
+        ]
+      },
+      { id:'1.2', title:'Expand Strategic Use of Teaching Professors', lead:'EVCP, Deans, Vice Provosts, and Departments', resource:'High', effort:'High',
+        items:[
+          { id:'1.2.1', alias:'Identify TP Roles', resource:'Med', effort:'Med', title:'Review Current Use and Identify Strategic Roles for Teaching Professors', timeframe:'0\u201312 months', content:'The EVCP, in consultation with deans and vice provosts, should convene to discuss a campus strategy for more intentional hiring and deployment of Teaching Professors across the College and Schools. Departments should identify where Teaching Professors could uniquely address teaching needs \u2014 especially in high-enrollment courses, multi-section sequences, and programs needing stable leadership in curriculum coordination and assessment. Priority should be given to areas where Teaching Professors can help shape instructional policy, support coherent curricular design, and strengthen connections among teaching practice, assessment, and curricular improvement.' },
+          { id:'1.2.2', alias:'Evaluate TP Impact', resource:'High', effort:'High', title:'Evaluate Impact on Instructional Quality, Equity, and Staffing Practice', timeframe:'24+ months', content:'Departments and divisions/schools should assess the extent to which the strategic use of Teaching Professors improves course delivery, supports evidence-based teaching, and strengthens curriculum, especially in areas under sustained enrollment pressure. Longer-term implementation should also monitor the effect of Teaching Professor hiring on teaching equity across the faculty, ensuring that expansion does not exempt other faculty from teaching responsibility.' }
+        ]
+      },
+      { id:'1.3', title:'Leverage Readers for Rubric-Based Grading and Feedback Support', lead:'Individual Instructors, Departments, and TLC', resource:'Low', effort:'Low',
+        items:[
+          { id:'1.3.1', alias:'Reader Support Examples', resource:'Low', effort:'Low', title:'Build on Existing Reader-Support Examples', timeframe:'0\u201312 months', content:'Departments should identify courses where Readers are already being used successfully for grading and written feedback, as well as comparable courses where TAs currently spend most of their time grading papers, exams, or other assignments. Initial expansion should focus on courses where shifting grading to Readers is likely to make a difference in instructional efficiency. Instructors should identify which assignments can be supported by Readers, how Readers will be trained on faculty-developed rubrics, how supervision will be maintained, and how Reader responsibilities will remain within applicable workload parameters.' },
+          { id:'1.3.2', alias:'Expand Reader Use', resource:'Low', effort:'Low\u2013Med', title:'Selectively Expand Reader Use and Assess Results', timeframe:'12\u201324 months', content:'Departments should pilot and assess broader Reader use in courses where grading demands are high and direct instructional interaction is less central to the TA role. The assessment should gauge whether Reader-supported models maintain the quality and timeliness of feedback and reduce grading burden on TAs and instructors. Where Reader-support models prove effective, Deans should work with departments to incorporate them more systematically into staffing plans.' },
+          { id:'1.3.3', alias:'Inventory Reader Use', resource:'Low', effort:'Low\u2013Med', title:'Inventory Reader-Supported Courses and Best Practices Across Course Types', timeframe:'0\u201324 months', content:'The Teaching and Learning Center (TLC) should inventory Reader-supported course models already in use across a range of disciplines, including: which assignments are graded by Readers; how faculty-developed rubrics and grading criteria are communicated; how consistency and timeliness of feedback are maintained; and how grading work is divided among Readers, TAs, and instructors. These examples should be gathered into a practical resource guide shared with instructors and departments seeking to expand Reader use when pedagogically appropriate.' }
+        ]
+      },
+      { id:'1.4', title:'Expand the Learning Assistant (LA) Program', lead:'Individual instructors, departments, and divisions in consultation with CEILS', resource:'Medium', effort:'High',
+        items:[
+          { id:'1.4.1', alias:'LA Program Pilot', resource:'Med', effort:'High', title:'Build on Existing LA Infrastructure, Identify Appropriate Courses Beyond STEM, and Pilot the LA-Supported Course Model', timeframe:'0\u201324+ months', content:'Departments, in coordination with CEILS, should identify courses where the LA model is most likely to translate effectively. Priority should be given to large-enrollment courses where additional in-class support could improve active learning engagement, and to courses where TAs are supporting large secondary sections that may benefit from additional pedagogical support. CEILS staff should consult with instructors to specify how LAs would be utilized, what activities they would support, and how responsibilities would be divided among instructors, TAs, and LAs.' },
+          { id:'1.4.2', alias:'Expand LA Program', resource:'Med', effort:'High', title:'Evaluate Results and Expand Where Effective', timeframe:'12\u201324 months', content:'Where assessment demonstrates the LA-supported model improves student engagement and helps redistribute instructional effort in useful ways, departments should engage their deans, who in consultation with CEILS, the EVCP and CFO, to determine how to expand staffing to sustain administration of the LA program beyond STEM.' }
+        ]
+      }
+    ]
+  },
+  '2': {
+    num:'2', pillar:'TA Allocation', cls:'ta',
+    dotColor:'#1295d8', badgeBg:'rgba(18,149,216,.11)', badgeColor:'#0a4f7a',
+    sections:[
+      { id:'2.1', title:'Optimize TA Use Based on Discipline-Specific Instructional Needs', lead:'APB, Deans and other Divisional and School Leadership', resource:'Low\u2013Medium', effort:'High',
+        items:[
+          { id:'2.1.1', alias:'Clarify TA Practices', resource:'Low', effort:'Low\u2013Med', title:'Review and Clarify Current TA Allocation Practices', timeframe:'0\u201312 months', content:'APB and deans\u2019 offices in the College and Schools should gather current practices across departments \u2014 including seat thresholds, sections per TA, and typical TA assignments and responsibilities \u2014 to provide campus with a clearer picture of where approaches are similar and where they vary. Deans\u2019 offices should ask departments to describe the instructional purpose of secondary sections and create a simple template identifying the role TAs play (e.g., lab supervision, writing feedback, structured problem-solving) and whether secondary section attendance is required.' },
+          { id:'2.1.2', alias:'Pilot Seat Minimums', resource:'Low\u2013Med', effort:'High', title:'Pilot Seat-Minimum Models', timeframe:'12\u201324 months', content:'Working with departments, deans\u2019 offices should pilot clear enrollment thresholds for TA support in a select set of larger-enrollment courses of the same type, testing whether more explicit seat minimums required to assign a TA compromises instructional quality. Where changes to seat minimums lead to larger or fewer sections, departments should revisit course design to ensure that syllabi, assignments, and grading timelines remain instructionally manageable. Pilots should be assessed using student feedback, grade outcomes, and other direct evidence of learning before scaling.' },
+          { id:'2.1.3', alias:'Pilot Banding Models', resource:'Low\u2013Med', effort:'High', title:'Pilot Instructional Category (Banding) Models', timeframe:'12\u201324 months', content:'Deans should work with their respective associate deans and appropriate faculty committees to develop a limited set of instructional categories that reflect meaningful differences in course design and support needs across the disciplines (e.g., wet labs, computational labs, writing-intensive discussions, lecture-based discussion sections). Within that framework, divisional and school leadership should lay out a more consistent basis for TA assignments across similar course types. Category-based models should leave room for exceptions where departments provide a brief rationale for review.' },
+          { id:'2.1.4', alias:'Scale TA Models', resource:'Low\u2013Med', effort:'High', title:'Integrate and Scale TA Allocation Models', timeframe:'24+ months', content:'Over time, deans\u2019 offices should determine whether seat minimums, instructional categories, or some combination provides the most effective and sustainable basis for TA allocation in their local contexts. Where these models prove useful, associate deans of finance, along with APB, should incorporate them into annual academic planning and budget processes so that TA assignments, course scheduling, and resource decisions are more tightly aligned in advance.' }
+        ]
+      },
+      { id:'2.2', title:'Align TA Allocation Standards with Enrollment Projections', lead:'APB and Deans and other Divisional and School Leadership', resource:'Low', effort:'Medium',
+        items:[
+          { id:'2.2.1', alias:'Enrollment Data Use', resource:'Low', effort:'Low', title:'Build on Existing Data and Planning Processes', timeframe:'0\u201312 months', content:'A more proactive approach to TA allocation will depend on making more effective use of enrollment data already available through APB. APB could share projected enrollments with divisions and schools by course and section type before each fiscal year. APB could also provide to divisional and school leaders a summary of recent TA allocation patterns \u2014 including students per TA, number of sections per TA, and total TAs by course \u2014 to clarify current practices and provide a more informed basis for future allocation decisions.' },
+          { id:'2.2.2', alias:'Standardize Trend Data', resource:'Low', effort:'Low\u2013Med', title:'Standardize Access to Trend Data and Adoption of Review Process', timeframe:'12\u201324 months', content:'APB should develop straightforward planning tools (e.g., templates or dashboards) that combine enrollment projections with TA workload limits so that divisions, schools, and departments can more effectively estimate TA needs under different scenarios. Annual review should also become a regular part of the TA allocation process \u2014 each year APB and divisional and school leadership should compare planned TA allocations with actual outcomes, including the number and size of sections and TA assignments, to identify where adjustments are needed.' },
+          { id:'2.2.3', alias:'Integrate TA Planning', resource:'Low', effort:'Med', title:'Strategically Integrate into Institutional Planning', timeframe:'24+ months', content:'Over the long term, TA allocation planning should become more fully integrated into broader campus budget and enrollment cycles. APB and deans\u2019 offices should link TA allocation planning more directly to budget development and enrollment management so that decisions can be made earlier in a more coordinated and transparent way. APB should monitor trends over time \u2014 including changes in section size, TA workload, and consistency across departments \u2014 to refine allocation practices and support long-term sustainability.' }
+        ]
+      }
+    ]
+  },
+  '3': {
+    num:'3', pillar:'Course Delivery', cls:'cd',
+    dotColor:'#ffb511', badgeBg:'rgba(255,181,17,.16)', badgeColor:'#6b4000',
+    sections:[
+      { id:'3.1', title:'Scale AI Capabilities and Capacity in Teaching and Learning', lead:'EVCP, Academic Senate, VPTL, TLC, DTS', resource:'High', effort:'High',
+        items:[
+          { id:'3.1.1', alias:'AI Strategic Priorities', resource:'Med', effort:'Med', title:'Articulate Strategic Priorities for Using AI in Teaching and Learning at UCLA', timeframe:'0\u201312 months', content:'A coherent vision enumerating strategic priorities is necessary to align pedagogical innovation with institutional values, academic integrity, and student success. Strategic priorities should align teaching policies, Academic Senate guidance, and student AI literacy initiatives with evolving UC system recommendations. In Spring 2026, the VPTL AI in Teaching & Learning Advisory Committee will deliver recommendations on four areas: 1) AI Literacy; 2) Accessibility and Impact of GenAI for Teaching and Learning; 3) Asset-based applications of GenAI; 4) Instructor Upskilling and Training. The priorities should reflect a diverse set of dispositions on AI to ensure pedagogical flexibility across instructional and disciplinary contexts.' },
+          { id:'3.1.2', alias:'AI Syllabus Policy', resource:'Low', effort:'Low', title:'Require Inclusion of an AI Policy in All Course Syllabi', timeframe:'0\u201312 months', content:'The Academic Senate, specifically the Undergraduate Council (UgC) and Graduate Council (GC), should create guidelines for instructors to include an AI policy in their course syllabi. The AI policy should allow for a wide range of disciplinary and pedagogical approaches to using AI tools based on course learning goals. A common framing includes: (1) Not Permitting AI in Class; (2) Limited Use of AI (with or without citation); (3) Permitting Use of AI. The policy should be aligned with the UCLA Student Code of Conduct. The new policy language should be ready for inclusion during the 2026\u20132027 Academic Year.' },
+          { id:'3.1.3', alias:'AI Equitable Access', resource:'Med', effort:'Low\u2013Med', title:'Ensure All UCLA Students Have Equitable Access to and Minimal Proficiency Using AI Tools', timeframe:'0\u201312+ months', content:'DTS, with guidance from the Academic Technology Committee, should develop and implement a strategy for scaling student access to AI tools in ways that align with disciplinary demands and pedagogical needs. DTS will need to engage the EVCP and CFO in budget planning to identify a sustainable funding model. UCLA also needs to address basic AI literacy and anticipated disparities in student proficiency. Every student should undergo basic AI training \u2014 integrated into Orientation and/or General Education courses as a Bruin Learn module. TLC, in consultation with UgC, can take the lead on developing an eLearning module starting Fall 2026.' },
+          { id:'3.1.4', alias:'Pilot AI Tools', resource:'High', effort:'High', title:'Develop and Pilot Custom AI Tools for Instruction', timeframe:'0\u201324 months', content:'DTS, with input from the Academic Technology Committee and in consultation with the Academic Senate, should pilot a tiered approach to scaling AI capabilities and capacity. Solutions must be flexible to accommodate a range of disciplinary and pedagogical backgrounds. This approach requires Explicit Build vs. Buy Analysis (BvB), overseen by DTS with collaborative support from APB, TLC, ATC, and the UCLA AI Advisory Committee. A pilot period with this approach is appropriate before broader implementation.' },
+          { id:'3.1.5', alias:'Continue AI Investment', resource:'Med', effort:'Low\u2013Med', title:'Continue Investing in Instructional Experimentation with AI', timeframe:'0\u201312 months', content:'Investments in AI-enabled instructional innovation need to continue and potentially expand. The TLC\u2019s tiered Educational Innovation Grants (EIG) program supports faculty experimentation with AI-enabled pedagogical approaches, course redesign, and discipline-specific AI teaching tools. TLC should continue to carve out funding to support faculty-led, AI-focused projects. An AI Accelerator program should allow instructors to quickly propose, implement, and assess the impact of an AI intervention. Additional staffing with AI expertise (e.g., AI Education Specialists) is needed to rapidly scale and lead program and resource development.' },
+          { id:'3.1.6', alias:'AI Resource Hub', resource:'Low', effort:'Low', title:'Develop On Demand AI Teaching Resources for Instructors', timeframe:'0\u201312 months', content:'TLC should expand its portfolio of online Teaching Guides with best-practice recommendations that frame AI as a tool for augmenting learning and teaching rather than solely as a risk. Compile and curate teaching artifacts \u2014 syllabi, AI course policies, assignments, case studies, and tool demonstrations \u2014 from instructors across disciplines. An AI Instructional Showcase can provide faculty a means to share strategies and lessons learned. Leverage the TLC AI Advisory Committee, AI Action Team, and other teaching support units (e.g., HumTech) to gather and maintain content.' },
+          { id:'3.1.7', alias:'Faculty AI Training', resource:'Med', effort:'Med\u2013High', title:'Expand Faculty Training Programs', timeframe:'0\u201324 months', content:'Provide structured learning opportunities to help instructors develop AI literacy, experiment with AI, share pedagogical strategies, and address ethical or instructional concerns about the technology. Teaching support units could partner with faculty who actively use AI in their instruction and designate them as "AI Fellows" in their respective departments. Research and/or professional development funds should be provided for program participation and completion. Consistent engagement through formal needs assessments, town halls, and AI symposia will be critical to assess outcomes and document faculty experiences.' },
+          { id:'3.1.8', alias:'AI Impact Research', resource:'High', effort:'High', title:'Engage in Continuous Assessment and Pedagogical Research on the Educational Impacts of AI', timeframe:'0\u201324+ months', content:'As AI becomes increasingly embedded in teaching and learning, UCLA needs a coordinated strategy to systematically assess and engage in pedagogical research on AI\u2019s impact on student learning and experiences. Measuring AI\u2019s impact is inherently challenging given the variability in pedagogical approaches, course designs, access to AI tools, and student engagement across a decentralized institution. Ongoing assessment and research is essential to generate reliable evidence, inform instructional practice, and guide responsible adoption across the university.' }
+        ]
+      },
+      { id:'3.2', title:'Support Faculty and Incentivize Their Participation in Course and Assessment Redesign', lead:'Departments, Academic Senate (CAP), TLC, CEILS', resource:'High', effort:'High',
+        items:[
+          { id:'3.2.1', alias:'Identify Review Courses', resource:'Low', effort:'Low', title:'Identify Courses for Pedagogical Review', timeframe:'0\u201312 months', content:'Departments should identify courses or course sequences where the current instructional model could be revisited, particularly courses with discussion sections, large-enrollment formats, or ongoing coordination needs. Priority should be given to courses where departments need to assess whether TA-led secondary sections are being used appropriately, whether they remain necessary in their current form, and whether the course has been updated to reflect evidence-based teaching practices.' },
+          { id:'3.2.2', alias:'Faculty Capacity', resource:'High', effort:'High', title:'Build Capacity for Course Redesign Through Collaborations and Faculty Incentives Appropriate for Workload', timeframe:'0\u201324 months', content:'Encourage the formation of faculty teams to engage in curriculum development and course redesign, with particular support for cross-disciplinary collaboration. Tangible incentives might include stipends, summer salary, professional development funds, or course releases. Exemplary redesign efforts should be acknowledged in merit review. Departmental personnel committees, AAPO, and the Academic Senate (CAP) should be engaged early on any changes affecting formal review processes. Departments may need to develop workload plans that account for the differing demands of teaching and curriculum redesign.' },
+          { id:'3.2.3', alias:'Support Faculty Tools', resource:'Low', effort:'Low', title:'Support Faculty in Adopting Tools and Pedagogical Strategies that Facilitate Instructional Efficiencies', timeframe:'0\u201312 months', content:'DTS, in collaboration with campus teaching support units, should expand awareness, programming, and training for instructors around tools within the Bruin Learn ecosystem to streamline grading workflows and support consistent feedback practices. Resources such as Gradescope should be highlighted and integrated with disciplinary-specific grading scenarios. The TLC should focus on building digitally accessible and readily deployable templates and examples. Workshops should be offered to help instructors redesign courses and assessments, including working with AI, digital accessibility, Universal Design for Learning, and leveraging course-level learning analytics.' },
+          { id:'3.2.4', alias:'Wrap-Around Support', resource:'Low\u2013Med', effort:'Low', title:'Provide Wrap-Around Support for Learners Enabling Faculty-led Curricular Change', timeframe:'0\u201324 months', content:'Wrap-around programs (WAPs) are defined as an integrated, institutionally coordinated ecosystem of academic and non-academic supports. TLC should lead a needs assessment to surface specific instructional challenges and prioritize development of eLearning WAPs constructed as a constellation of modules instructors can plug-and-play in Bruin Learn. Topics related to AI should be an immediate priority. This effort should be done in collaboration with the Division of Undergraduate Education, relevant units in Student Affairs, and DTS (Bruin Learn). Identified needs should be mapped against existing support structures and incorporated into eLearning WAPs.' }
+        ]
+      },
+      { id:'3.3', title:'Strategically Expand Online and Hybrid Course Options', lead:'Academic Senate, Divisional/School Leadership, TLC, DTS', resource:'Low\u2013Med', effort:'Low\u2013Med',
+        items:[
+          { id:'3.3.1', alias:'Online Quality Criteria', resource:'Low\u2013Med', effort:'Low\u2013Med', title:'Develop Criteria for Effective Online and Hybrid Courses', timeframe:'0\u201324 months', content:'An ad hoc campus working group with diverse faculty representation familiar with evidence-based teaching and experience teaching in different course modalities should be charged to articulate criteria that define effective online teaching and identify exemplars. Integrating the Dimensions of Effective Teaching embedded in the Holistic Evaluation of Teaching (HET) framework is a starting point \u2014 defining effective teaching as: 1) engages students, 2) is equitable, 3) is learning-centered and responsive, and 4) involves striving to improve. TLC should lead a strategic communication campaign to raise awareness and provide greater clarity around the Online/Hybrid Course Quality Review and Attestation checklist.' },
+          { id:'3.3.2', alias:'ASE Online Training', resource:'Low\u2013Med', effort:'Low', title:'Require Training for Students Appointed as ASEs to Teach in Online and Hybrid Courses', timeframe:'0\u201312 months', content:'The Graduate Council (GC) should consider amending current TA training requirements to include minimal competencies with respect to teaching online. TLC should lead a coordinated effort to develop and offer programming specifically focused on teaching in online and hybrid settings, available to all instructors including TAs assigned to online or hybrid courses. Topics such as fostering student engagement in asynchronous online sections and maintaining an online presence should be incorporated into TA training programs.' }
+        ]
+      }
+    ]
+  }
+};
+
+// Quadrant assignment per action item
+// Y-axis: Effort (High = top, Low = bottom)
+// X-axis: Resource (Low = left, High = right)
+const quadrantMap = {
+  // TOP-LEFT: High Effort, Low–Med Resource
+  'tl': [
+    {pid:'1', si:0, ii:1}, // 1.1.2  Low resource, High effort
+    {pid:'1', si:0, ii:2}, // 1.1.3  Low resource, High effort
+    {pid:'1', si:3, ii:0}, // 1.4.1  Med resource, High effort
+    {pid:'1', si:3, ii:1}, // 1.4.2  Med resource, High effort
+    {pid:'2', si:0, ii:1}, // 2.1.2  Low-Med resource, High effort
+    {pid:'2', si:0, ii:2}, // 2.1.3  Low-Med resource, High effort
+    {pid:'2', si:0, ii:3}, // 2.1.4  Low-Med resource, High effort
+  ],
+  // TOP-RIGHT: High Effort, High Resource
+  'tr': [
+    {pid:'1', si:1, ii:1}, // 1.2.2  High resource, High effort
+    {pid:'3', si:0, ii:3}, // 3.1.4  High resource, High effort
+    {pid:'3', si:0, ii:6}, // 3.1.7  Med resource, Med-High effort
+    {pid:'3', si:0, ii:7}, // 3.1.8  High resource, High effort
+    {pid:'3', si:1, ii:1}, // 3.2.2  High resource, High effort
+  ],
+  // BOTTOM-LEFT: Low–Med Effort, Low–Med Resource
+  'bl': [
+    {pid:'1', si:0, ii:0}, // 1.1.1  Low resource, Low-Med effort
+    {pid:'1', si:2, ii:0}, // 1.3.1  Low resource, Low effort
+    {pid:'1', si:2, ii:1}, // 1.3.2  Low resource, Low-Med effort
+    {pid:'1', si:2, ii:2}, // 1.3.3  Low resource, Low-Med effort
+    {pid:'2', si:0, ii:0}, // 2.1.1  Low resource, Low-Med effort
+    {pid:'2', si:1, ii:0}, // 2.2.1  Low resource, Low effort
+    {pid:'2', si:1, ii:1}, // 2.2.2  Low resource, Low-Med effort
+    {pid:'2', si:1, ii:2}, // 2.2.3  Low resource, Med effort
+    {pid:'3', si:0, ii:1}, // 3.1.2  Low resource, Low effort
+    {pid:'3', si:0, ii:5}, // 3.1.6  Low resource, Low effort
+    {pid:'3', si:1, ii:0}, // 3.2.1  Low resource, Low effort
+    {pid:'3', si:1, ii:2}, // 3.2.3  Low resource, Low effort
+    {pid:'3', si:1, ii:3}, // 3.2.4  Low-Med resource, Low effort
+    {pid:'3', si:2, ii:0}, // 3.3.1  Low-Med resource, Low-Med effort
+    {pid:'3', si:2, ii:1}, // 3.3.2  Low-Med resource, Low effort
+  ],
+  // BOTTOM-RIGHT: Low–Med Effort, Med–High Resource
+  'br': [
+    {pid:'1', si:1, ii:0}, // 1.2.1  Med resource, Med effort
+    {pid:'3', si:0, ii:0}, // 3.1.1  Med resource, Med effort
+    {pid:'3', si:0, ii:2}, // 3.1.3  Med resource, Low-Med effort
+    {pid:'3', si:0, ii:4}, // 3.1.5  Med resource, Low-Med effort
+  ]
+};
+
+let activeEl = null;
+
+function buildMatrix() {
+  ['tl','tr','bl','br'].forEach(q => {
+    const container = document.getElementById('q-'+q);
+    quadrantMap[q].forEach(({pid, si, ii}) => {
+      const p = pillars[pid];
+      const item = p.sections[si].items[ii];
+      const el = document.createElement('span');
+      el.className = `bubble ${p.cls}`;
+      el.id = `b-${pid}-${si}-${ii}`;
+      el.title = item.title;
+      el.innerHTML = `<span class="b-id">${item.id}</span><span class="b-alias">${item.alias}</span>`;
+      el.onclick = () => openItem(pid, si, ii);
+      container.appendChild(el);
+    });
+  });
+}
+
+function openItem(pid, si, ii) {
+  const p = pillars[pid];
+  const sec = p.sections[si];
+  const item = sec.items[ii];
+
+  if (activeEl) activeEl.classList.remove('active');
+  activeEl = document.getElementById(`b-${pid}-${si}-${ii}`);
+  if (activeEl) activeEl.classList.add('active');
+
+  document.getElementById('panelHeader').innerHTML = `
+    <span class="panel-pillar-badge" style="background:${p.badgeBg};color:${p.badgeColor};">
+      <span style="width:7px;height:7px;border-radius:50%;background:${p.dotColor};display:inline-block;"></span>
+      ${p.pillar}
+    </span>
+    <div class="panel-sec-info" style="margin:6px 0 8px;">
+      <div class="panel-sec-label">Parent Section</div>
+      <div class="panel-sec-title">${sec.id} · ${sec.title}</div>
+      <div class="panel-sec-meta">
+        <span class="sec-badge badge-lead">Lead(s): ${sec.lead}</span>
+        <span class="sec-badge badge-r">Resource: ${sec.resource}</span>
+        <span class="sec-badge badge-e">Effort: ${sec.effort}</span>
+      </div>
+    </div>
+    <div style="height:1px;background:#e4eef6;margin:0 0 8px;"></div>
+    <div class="panel-item-id">${item.id}</div>
+    <div class="panel-title">${item.title}</div>
+    <div class="panel-timeframe">${item.timeframe}</div>
+    <div class="panel-meta" style="margin-top:6px;">
+      <div class="panel-meta-item"><span class="panel-meta-label">Resource</span>&nbsp;<span class="panel-meta-value" style="color:#2774AE;">${item.resource}</span></div>
+      <div class="panel-meta-item"><span class="panel-meta-label">Effort</span>&nbsp;<span class="panel-meta-value" style="color:#003B5C;">${item.effort}</span></div>
+    </div>`;
+
+  document.getElementById('panelBody').innerHTML = `
+    <div class="panel-content-box">${item.content}</div>`;
+
+  document.getElementById('sidePanel').classList.add('open');
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('pageWrap').classList.add('panel-open');
+}
+
+function closePanel() {
+  document.getElementById('sidePanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('pageWrap').classList.remove('panel-open');
+  if (activeEl) { activeEl.classList.remove('active'); activeEl = null; }
+}
+
+buildMatrix();
+</script>
+</body>
+</html>
