@@ -60,9 +60,9 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
 .bubble.ta{background:rgba(37,99,235,.12);color:#1e40af}
 .bubble.ta.active{border-color:#2563eb;box-shadow:0 0 0 2.5px rgba(37,99,235,.24)}
 .bubble.ta .b-id{background:rgba(37,99,235,.2)}
-.bubble.cd{background:rgba(192,38,211,.12);color:#86198f}
-.bubble.cd.active{border-color:#c026d3;box-shadow:0 0 0 2.5px rgba(192,38,211,.28)}
-.bubble.cd .b-id{background:rgba(192,38,211,.22)}
+.bubble.cd{background:rgba(255,209,0,.18);color:#6b4f00}
+.bubble.cd.active{border-color:#FFD100;box-shadow:0 0 0 2.5px rgba(255,209,0,.35)}
+.bubble.cd .b-id{background:rgba(255,209,0,.3)}
 
 /* ── X-AXIS ── */
 .x-axis-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-left:46px}
@@ -120,7 +120,7 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:#059669"></div>1 Instructional Workforce</div>
       <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>2 TA Allocation</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#c026d3"></div>3 Course Delivery</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#FFD100"></div>3 Course Delivery</div>
     </div>
 
     <div class="matrix-wrap">
@@ -350,7 +350,7 @@ const pillars = {
   },
   '3': {
     num:'3', pillar:'Course Delivery', cls:'cd',
-    dotColor:'#c026d3', badgeBg:'rgba(192,38,211,.12)', badgeColor:'#86198f',
+    dotColor:'#FFD100', badgeBg:'rgba(255,209,0,.16)', badgeColor:'#6b4f00',
     sections:[
       {
         id:'3.1', title:'Scale AI Capabilities and Capacity in Teaching and Learning',
