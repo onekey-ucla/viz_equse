@@ -138,11 +138,11 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
       <!-- Matrix grid -->
       <div class="matrix-main">
         <div class="matrix-grid" id="matrixGrid">
-          <!-- TL: High Effort, Low Resource -->
+          <!-- TL (quad 1): swapped with BR to match v1 layout; shows former BR items -->
           <div class="quadrant" id="q-tl">
             <div class="q-header">
               <div class="q-label">Top Left</div>
-              <div class="q-desc">Plan &amp; Build <span class="q-tag tag-plan">Strategic</span></div>
+              <div class="q-desc">Targeted Investment <span class="q-tag tag-invest">Fund First</span></div>
             </div>
             <div class="bubbles-row" id="bubbles-tl"></div>
           </div>
@@ -162,11 +162,11 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
             </div>
             <div class="bubbles-row" id="bubbles-bl"></div>
           </div>
-          <!-- BR: Low Effort, High Resource -->
+          <!-- BR (quad 4): swapped with TL to match v1 layout; shows former TL items -->
           <div class="quadrant" id="q-br">
             <div class="q-header">
               <div class="q-label">Bottom Right</div>
-              <div class="q-desc">Targeted Investment <span class="q-tag tag-invest">Fund First</span></div>
+              <div class="q-desc">Plan &amp; Build <span class="q-tag tag-plan">Strategic</span></div>
             </div>
             <div class="bubbles-row" id="bubbles-br"></div>
           </div>
@@ -465,19 +465,13 @@ const pillars = {
 
 // quadrantMap — pid, si (0-indexed section), ii (0-indexed item)
 const quadrantMap = {
+  // TL / BR swapped vs prior build to match 0410_ver1 quadrant 1 & 4 placement
   'tl': [
-    {pid:'1', si:0, ii:1}, // 1.1.2 TA Reallocation Assess
-    {pid:'1', si:0, ii:2}, // 1.1.3 TA Data Refinement
-    {pid:'1', si:2, ii:1}, // 1.3.2 Reader Expansion
-    {pid:'1', si:3, ii:0}, // 1.4.1 LA Program Pilot
-    {pid:'1', si:3, ii:1}, // 1.4.2 LA Expansion
-    {pid:'2', si:0, ii:1}, // 2.1.2 Seat Min Pilot
-    {pid:'2', si:0, ii:2}, // 2.1.3 Banding Pilot
-    {pid:'2', si:0, ii:3}, // 2.1.4 Scale Alloc Models
-    {pid:'2', si:1, ii:1}, // 2.2.2 Trend Data Standard
-    {pid:'2', si:1, ii:2}, // 2.2.3 Institutional Integration
-    {pid:'3', si:0, ii:7}, // 3.1.8 AI Assessment Research
-    {pid:'3', si:1, ii:1}, // 3.2.2 Redesign Capacity
+    {pid:'1', si:1, ii:0}, // 1.2.1 TP Strategic Review
+    {pid:'3', si:0, ii:0}, // 3.1.1 AI Strategy
+    {pid:'3', si:0, ii:4}, // 3.1.5 AI Innovation Grants
+    {pid:'3', si:1, ii:3}, // 3.2.4 Wrap-Around Support
+    {pid:'3', si:2, ii:0}, // 3.3.1 Online Criteria
   ],
   'tr': [
     {pid:'1', si:1, ii:1}, // 1.2.2 TP Impact Eval
@@ -498,11 +492,18 @@ const quadrantMap = {
     {pid:'3', si:2, ii:1}, // 3.3.2 ASE Online Training
   ],
   'br': [
-    {pid:'1', si:1, ii:0}, // 1.2.1 TP Strategic Review
-    {pid:'3', si:0, ii:0}, // 3.1.1 AI Strategy
-    {pid:'3', si:0, ii:4}, // 3.1.5 AI Innovation Grants
-    {pid:'3', si:1, ii:3}, // 3.2.4 Wrap-Around Support
-    {pid:'3', si:2, ii:0}, // 3.3.1 Online Criteria
+    {pid:'1', si:0, ii:1}, // 1.1.2 TA Reallocation Assess
+    {pid:'1', si:0, ii:2}, // 1.1.3 TA Data Refinement
+    {pid:'1', si:2, ii:1}, // 1.3.2 Reader Expansion
+    {pid:'1', si:3, ii:0}, // 1.4.1 LA Program Pilot
+    {pid:'1', si:3, ii:1}, // 1.4.2 LA Expansion
+    {pid:'2', si:0, ii:1}, // 2.1.2 Seat Min Pilot
+    {pid:'2', si:0, ii:2}, // 2.1.3 Banding Pilot
+    {pid:'2', si:0, ii:3}, // 2.1.4 Scale Alloc Models
+    {pid:'2', si:1, ii:1}, // 2.2.2 Trend Data Standard
+    {pid:'2', si:1, ii:2}, // 2.2.3 Institutional Integration
+    {pid:'3', si:0, ii:7}, // 3.1.8 AI Assessment Research
+    {pid:'3', si:1, ii:1}, // 3.2.2 Redesign Capacity
   ]
 };
 
