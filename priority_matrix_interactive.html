@@ -54,15 +54,15 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
 .b-alias{font-size:9.5px;font-weight:500;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
 
 /* Pillar colors */
-.bubble.iw{background:rgba(4,120,87,.12);color:#065f46}
-.bubble.iw.active{border-color:#047857;box-shadow:0 0 0 2.5px rgba(4,120,87,.24)}
-.bubble.iw .b-id{background:rgba(4,120,87,.2)}
+.bubble.iw{background:rgba(5,150,105,.12);color:#065f46}
+.bubble.iw.active{border-color:#059669;box-shadow:0 0 0 2.5px rgba(5,150,105,.24)}
+.bubble.iw .b-id{background:rgba(5,150,105,.2)}
 .bubble.ta{background:rgba(37,99,235,.12);color:#1e40af}
 .bubble.ta.active{border-color:#2563eb;box-shadow:0 0 0 2.5px rgba(37,99,235,.24)}
 .bubble.ta .b-id{background:rgba(37,99,235,.2)}
-.bubble.cd{background:rgba(255,181,17,.15);color:#6b4000}
-.bubble.cd.active{border-color:#ffb511;box-shadow:0 0 0 2.5px rgba(255,181,17,.3)}
-.bubble.cd .b-id{background:rgba(255,181,17,.28)}
+.bubble.cd{background:rgba(192,38,211,.12);color:#86198f}
+.bubble.cd.active{border-color:#c026d3;box-shadow:0 0 0 2.5px rgba(192,38,211,.28)}
+.bubble.cd .b-id{background:rgba(192,38,211,.22)}
 
 /* ── X-AXIS ── */
 .x-axis-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-left:46px}
@@ -118,9 +118,9 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
   <div class="matrix-area">
 
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#047857"></div>1 Instructional Workforce</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#059669"></div>1 Instructional Workforce</div>
       <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>2 TA Allocation</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ffb511"></div>3 Course Delivery</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#c026d3"></div>3 Course Delivery</div>
     </div>
 
     <div class="matrix-wrap">
@@ -200,7 +200,7 @@ body{font-family:'Inter',sans-serif;background:#f4f7fb;min-height:100vh;color:#1
 const pillars = {
   '1': {
     num:'1', pillar:'Instructional Workforce', cls:'iw',
-    dotColor:'#047857', badgeBg:'rgba(4,120,87,.12)', badgeColor:'#065f46',
+    dotColor:'#059669', badgeBg:'rgba(5,150,105,.12)', badgeColor:'#065f46',
     sections:[
       {
         id:'1.1', title:'Optimize Use of TA Appointments',
@@ -350,7 +350,7 @@ const pillars = {
   },
   '3': {
     num:'3', pillar:'Course Delivery', cls:'cd',
-    dotColor:'#ffb511', badgeBg:'rgba(255,181,17,.16)', badgeColor:'#6b4000',
+    dotColor:'#c026d3', badgeBg:'rgba(192,38,211,.12)', badgeColor:'#86198f',
     sections:[
       {
         id:'3.1', title:'Scale AI Capabilities and Capacity in Teaching and Learning',
